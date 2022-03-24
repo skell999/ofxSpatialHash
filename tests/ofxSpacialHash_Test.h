@@ -1,6 +1,6 @@
 #pragma once
 #include "ofMain.h"
-#include <ofxSpacialHash.h>
+#include <ofxSpatialHash.h>
 
 void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize);
 

@@ -13,6 +13,7 @@ void ofxSpacialHash_Test::init(float width, float height, float gridSize, int nu
 	ofRegisterMouseEvents(this);
 	ofRegisterKeyEvents(this);
 
+	std::cout << "Running performace tests\n";
 	spatialTest(1000, 1000, 10, 0);
 
 	m_worldWidth = width;
@@ -121,16 +122,10 @@ void ofxSpacialHash_Test::draw()
 
 	// Draw radius
 	ofDrawCircle(m_mouseX, m_mouseY, m_searchRadius);
-	// Draw bounding box
-	ofDrawRectangle(m_mouseX - m_searchRadius, m_mouseY - m_searchRadius, m_searchRadius * 2.f, m_searchRadius * 2.f);
 
 	ofFill();
 	for (auto& p : points)
 	{
-		if (!m_sh.isInsideBoundingBox(p->x, p->y, m_mouseX - m_searchRadius, m_mouseY - m_searchRadius, m_searchRadius * 2.f, m_searchRadius * 2.f))
-		{
-			continue;
-		}
 		if (p->distance({ m_mouseX,m_mouseY }) < m_searchRadius)
 		{
 			// Points color within radius
@@ -158,7 +153,7 @@ struct Result
 	long long min = 0;
 };
 
-Result test_glm_spatial_hash(ofxSpacialHash<glm::vec2*>& spatialHash, glm::vec2 searchPoint, float searchRadius, int iterations)
+Result test_glm_spatial_hash(ofxSpatialHash<glm::vec2*>& spatialHash, glm::vec2 searchPoint, float searchRadius, int iterations)
 {
 	Result r;
 	using namespace std::chrono;
@@ -200,7 +195,7 @@ Result test_glm_spatial_hash(ofxSpacialHash<glm::vec2*>& spatialHash, glm::vec2 
 	return r;
 }
 
-Result test_ofVec2f_spatial_hash(ofxSpacialHash<ofVec2f*>& spatialHash, ofVec2f searchPoint, float searchRadius, int iterations)
+Result test_ofVec2f_spatial_hash(ofxSpatialHash<ofVec2f*>& spatialHash, ofVec2f searchPoint, float searchRadius, int iterations)
 {
 	Result r;
 	using namespace std::chrono;
@@ -242,105 +237,7 @@ Result test_ofVec2f_spatial_hash(ofxSpacialHash<ofVec2f*>& spatialHash, ofVec2f 
 	return r;
 }
 
-Result glm_early_out(ofxSpacialHash<glm::vec2*>& spatialHash, glm::vec2 searchPoint, float searchRadius, int iterations)
-{
-	Result r;
-	using namespace std::chrono;
-	steady_clock::time_point begin;
-	steady_clock::time_point end;
-	auto& shPointsGlm = spatialHash.getNearestPoints(searchPoint.x, searchPoint.y, searchRadius);
-	float bbx = searchPoint.x - searchRadius;
-	float bby = searchPoint.y - searchRadius;
-	float w = searchRadius * 2.f;
-	float h = w;
-	for (size_t i = 0; i < iterations; i++)
-	{
-		r.loopCount = 0;
-		r.distCount = 0;
-		r.inRadiusCount = 0;
-		begin = std::chrono::steady_clock::now();
-		auto& shPointsGlm = spatialHash.getNearestPoints(searchPoint.x, searchPoint.y, searchRadius);
-
-		for (const auto& p : shPointsGlm)
-		{
-			if (spatialHash.isInsideBoundingBox(p->x, p->y, bbx, bby, w, h))
-			{
-				r.distCount++;
-				if (glm::distance(*p, searchPoint) < searchRadius)
-				{
-					r.inRadiusCount++;
-				}
-			}
-			r.loopCount++;
-		}
-		end = std::chrono::steady_clock::now();
-
-		r.micro += duration_cast<microseconds>(end - begin).count();
-		r.nano += duration_cast<nanoseconds>(end - begin).count();
-		r.milli += duration_cast<milliseconds>(end - begin).count();
-		r.sec += duration_cast<seconds>(end - begin).count();
-		r.min += duration_cast<minutes>(end - begin).count();
-	}
-
-	r.micro /= iterations;
-	r.nano /= iterations;
-	r.milli /= iterations;
-	r.sec /= iterations;
-	r.min /= iterations;
-
-	return r;
-}
-
-Result ofVec2f_early_out(ofxSpacialHash<ofVec2f*>& spatialHash, ofVec2f searchPoint, float searchRadius, int iterations)
-{
-	Result r;
-	using namespace std::chrono;
-	steady_clock::time_point begin;
-	steady_clock::time_point end;
-	auto& shPointsGlm = spatialHash.getNearestPoints(searchPoint.x, searchPoint.y, searchRadius);
-	float bbx = searchPoint.x - searchRadius;
-	float bby = searchPoint.y - searchRadius;
-	float w = searchRadius * 2.f;
-	float h = w;
-	for (size_t i = 0; i < iterations; i++)
-	{
-		r.loopCount = 0;
-		r.distCount = 0;
-		r.inRadiusCount = 0;
-		begin = std::chrono::steady_clock::now();
-		auto& shPointsGlm = spatialHash.getNearestPoints(searchPoint.x, searchPoint.y, searchRadius);
-
-		for (const auto& p : shPointsGlm)
-		{
-			if (spatialHash.isInsideBoundingBox(p->x, p->y, bbx, bby, w, h))
-			{
-				r.distCount++;
-				if (p->distance(searchPoint) < searchRadius)
-				{
-					r.inRadiusCount++;
-				}
-			}
-			r.loopCount++;
-		}
-		end = std::chrono::steady_clock::now();
-
-		r.micro += duration_cast<microseconds>(end - begin).count();
-		r.nano += duration_cast<nanoseconds>(end - begin).count();
-		r.milli += duration_cast<milliseconds>(end - begin).count();
-		r.sec += duration_cast<seconds>(end - begin).count();
-		r.min += duration_cast<minutes>(end - begin).count();
-	}
-
-	r.micro /= iterations;
-	r.nano /= iterations;
-	r.milli /= iterations;
-	r.sec /= iterations;
-	r.min /= iterations;
-
-	return r;
-}
-
-Result ofVec2f_naive(ofxSpacialHash<ofVec2f*>& spatialHash, ofVec2f searchPoint, float searchRadius, int iterations)
+Result ofVec2f_naive(ofxSpatialHash<ofVec2f*>& spatialHash, ofVec2f searchPoint, float searchRadius, int iterations)
 {
 	Result r;
 	using namespace std::chrono;
@@ -385,7 +282,7 @@ Result ofVec2f_naive(ofxSpacialHash<ofVec2f*>& spatialHash, ofVec2f searchPoint,
 	return r;
 }
 
-Result glmvec2_naive(ofxSpacialHash<glm::vec2*>& spatialHash, glm::vec2 searchPoint, float searchRadius, int iterations)
+Result glmvec2_naive(ofxSpatialHash<glm::vec2*>& spatialHash, glm::vec2 searchPoint, float searchRadius, int iterations)
 {
 	Result r;
 	using namespace std::chrono;
@@ -486,7 +383,7 @@ void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize)
 		using namespace std;
 		steady_clock::time_point begin;
 		steady_clock::time_point end;
-		ofxSpacialHash<ofVec2f*> hash;
+		ofxSpatialHash<ofVec2f*> hash;
 		hash.init(worldW, worldH, gridSize, 100'000);
 		std::vector<ofVec2f> points;
 
@@ -525,7 +422,7 @@ void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize)
 			{
 				ofSeedRandom(3286428356);
 				std::vector<glm::vec2> points;
-				ofxSpacialHash<glm::vec2*> hash;
+				ofxSpatialHash<glm::vec2*> hash;
 				hash.init(worldW, worldH, gridSize, 100'000);
 				for (size_t j = 0; j < numPoints[i]; j++)
 				{
@@ -542,7 +439,7 @@ void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize)
 			{
 				ofSeedRandom(3286428356);
 				std::vector<ofVec2f> points;
-				ofxSpacialHash<ofVec2f*> hash;
+				ofxSpatialHash<ofVec2f*> hash;
 				hash.init(worldW, worldH, gridSize, 100'000);
 				for (size_t j = 0; j < numPoints[i]; j++)
 				{
@@ -560,7 +457,7 @@ void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize)
 				if (numPoints[i] > 500'000) { std::cout << " none "; continue; }
 				ofSeedRandom(3286428356);
 				std::vector<glm::vec2> points;
-				ofxSpacialHash<glm::vec2*> hash;
+				ofxSpatialHash<glm::vec2*> hash;
 				hash.init(worldW, worldH, gridSize, 100'000);
 				for (size_t j = 0; j < numPoints[i]; j++)
 				{
@@ -578,7 +475,7 @@ void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize)
 				if (numPoints[i] > 500'000) { std::cout << " none "; continue; }
 				ofSeedRandom(3286428356);
 				std::vector<ofVec2f> points;
-				ofxSpacialHash<ofVec2f*> hash;
+				ofxSpatialHash<ofVec2f*> hash;
 				hash.init(worldW, worldH, gridSize, 100'000);
 				for (size_t j = 0; j < numPoints[i]; j++)
 				{
