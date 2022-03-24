@@ -2,8 +2,7 @@
 # general patterns
 #########################
 
-docs/html
-docs/tagfile.xml
+!/docs/**/*.*
 
 */bin/*
 !*/bin/data/
