@@ -1,14 +1,16 @@
 #pragma once
 #include "ofMain.h"
 #include <ofxSpacialHash.h>
+
+void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize);
+
 class ofxSpacialHash_Test
 {
 public:
 	ofxSpacialHash_Test();
-	ofxSpacialHash_Test(float worldWidth, float worldHeight, float gridSize) : m_worldWidth(worldWidth), m_worldHeight(worldHeight), m_gridSize(gridSize) {};
 	~ofxSpacialHash_Test();
 
-	void init();
+	void init(float width, float height, float gridSize, int numberOfPoints, bool isPointsRandom);
 	void draw();
 
 	void mouseMoved(ofMouseEventArgs& args) 
@@ -30,15 +32,30 @@ public:
 	void mouseEntered(ofMouseEventArgs& args) {};
 	void mouseExited(ofMouseEventArgs& args) {};
 
+	void keyPressed(ofKeyEventArgs& args) 
+	{
+		if (args.key == '1' || args.key == '!')
+		{
+			drawBucketIndices = !drawBucketIndices;
+		}
+	};
+	void keyReleased(ofKeyEventArgs& args) {};
+
 	float m_searchRadius = 100.f;
+	bool drawBucketIndices = false;
 private:
+	void generateRandomPoints(int amount);
+	void generateUniformpoints();
 	float m_worldWidth = 0;
 	float m_worldHeight = 0;
 	float m_gridSize = 0;
+	float m_gridWidth = 0;
+	float m_gridHeight = 0;
 	float m_mouseX = 0;
 	float m_mouseY = 0;
 	ofVbo m_vbo;
 	std::vector<ofVec2f> m_points;
-	SpacialHash<ofVec2f*> m_sh;
+	ofxSpacialHash<ofVec2f*> m_sh;
 };
+
 
