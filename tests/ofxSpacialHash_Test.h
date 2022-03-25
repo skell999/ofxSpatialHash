@@ -55,7 +55,7 @@ private:
 	float m_mouseY = 0;
 	ofVbo m_vbo;
 	std::vector<ofVec2f> m_points;
-	ofxSpacialHash<ofVec2f*> m_sh;
+	ofxSpatialHash<ofVec2f*> m_sh;
 };
 
 

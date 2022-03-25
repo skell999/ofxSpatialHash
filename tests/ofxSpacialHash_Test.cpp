@@ -332,23 +332,7 @@ void printResult(std::string testName, Result& r, int worldW, int worldH, int gr
 	using namespace std;
 	cout << " [Ms] = " << (float)r.micro / 1000.f;
 }
-//[World Width] 1000[World Height] 1000[Grid Size] 10[Search Radius] 150
-//Spatial hash add point
-//[Num Points] = 100[Ms] = 0.055
-//[Num Points] = 1000[Ms] = 0.301
-//[Num Points] = 10000[Ms] = 1.276
-//[Num Points] = 50000[Ms] = 5.269
-//[Num Points] = 100000[Ms] = 9.23
-//[Num Points] = 500000[Ms] = 55.71
-//[Num Points] = 1000000[Ms] = 107.168
-//[Num Points] = 10000000[Ms] = 1116.19
-//[Ms] = 0.008[Ms] = 0.004[Ms] = 0.012[Ms] = 0.008
-//[Ms] = 0.022[Ms] = 0.014[Ms] = 1.219[Ms] = 0.643
-//[Ms] = 0.137[Ms] = 0.104[Ms] = 106.859[Ms] = 61.337
-//[Ms] = 0.787[Ms] = 0.533[Ms] = 2631.26[Ms] = 1363.52
-//[Ms] = 1.484[Ms] = 1.082[Ms] = 10929.2[Ms] = 5672.39
-//[Ms] = 7.921[Ms] = 5.779[Ms] = 320844[Ms] = 168197
-//[Ms] = 23.674[Ms] = 12.711 none[Ms] = 208.988[Ms] = 138.787 none
+
 void spatialTest(float worldW, float worldH, float gridSize, int preAllocSize)
 {
 	std::array<int, 8> numPoints = { 100, 1000, 10'000, 50'000, 100'000, 500'000, 1'000'000, 10'000'000 };
