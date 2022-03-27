@@ -131,14 +131,11 @@ template<class T>
 inline std::vector<T>& ofxSpatialHash<T>::getNearestPoints(float x, float y, float radius)
 {
 	m_returnBuffer.clear();
-	auto bucketIndices = getNearestBuckets(x, y, radius);
+	m_bucketIndexReturnBuffer = getNearestBuckets(x, y, radius);
 
-	for (auto& i : bucketIndices)
+	for (auto& i : m_bucketIndexReturnBuffer)
 	{
-		for (auto& p : m_buckets[i])
-		{
-			m_returnBuffer.push_back(p);
-		}
+		m_returnBuffer.insert(m_returnBuffer.end(), m_buckets[i].begin(), m_buckets[i].end());
 	}
 	return m_returnBuffer;
 }
